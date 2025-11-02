@@ -1,0 +1,59 @@
+{
+  "version": "v1.0",
+  "default": {
+    "hrv": 0.22,
+    "sleep": 0.22,
+    "rhr": 0.12,
+    "load": 0.14,
+    "stiffness": 0.12,
+    "soreness": 0.12,
+    "reset": 0.06
+  },
+  "sportSpecific": {
+    "RUNNING": {
+      "hrv": 0.20,
+      "sleep": 0.20,
+      "rhr": 0.10,
+      "load": 0.20,
+      "stiffness": 0.12,
+      "soreness": 0.12,
+      "reset": 0.06
+    },
+    "CYCLING": {
+      "hrv": 0.22,
+      "sleep": 0.20,
+      "rhr": 0.10,
+      "load": 0.18,
+      "stiffness": 0.10,
+      "soreness": 0.14,
+      "reset": 0.06
+    },
+    "TRIATHLON": {
+      "hrv": 0.22,
+      "sleep": 0.22,
+      "rhr": 0.12,
+      "load": 0.16,
+      "stiffness": 0.10,
+      "soreness": 0.12,
+      "reset": 0.06
+    },
+    "WEIGHTLIFTING": {
+      "hrv": 0.18,
+      "sleep": 0.24,
+      "rhr": 0.08,
+      "load": 0.12,
+      "stiffness": 0.16,
+      "soreness": 0.16,
+      "reset": 0.06
+    },
+    "CROSSFIT": {
+      "hrv": 0.20,
+      "sleep": 0.22,
+      "rhr": 0.10,
+      "load": 0.14,
+      "stiffness": 0.14,
+      "soreness": 0.14,
+      "reset": 0.06
+    }
+  }
+}

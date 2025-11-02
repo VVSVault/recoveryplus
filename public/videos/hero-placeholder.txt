@@ -1,0 +1,22 @@
+To add a wellness video background:
+
+1. Download a free wellness/spa video from:
+   - Pexels: https://www.pexels.com/search/videos/wellness/
+   - Pixabay: https://pixabay.com/videos/search/wellness/
+   
+   Recommended searches: "spa", "wellness", "meditation", "yoga", "water", "nature"
+
+2. Save the video as "hero-video.mp4" in this folder (/public/videos/)
+
+3. Optimize the video:
+   - Keep it under 10MB
+   - 1920x1080 resolution
+   - 10-30 seconds loop
+   - No audio track
+
+Example good videos from Pexels:
+- Water ripples/waves
+- Candles in spa setting  
+- Person doing yoga/stretching
+- Nature scenes (forest, beach)
+- Steam/mist effects

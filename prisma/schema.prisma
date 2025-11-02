@@ -1,0 +1,298 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ATHLETE
+  COACH
+  ADMIN
+}
+
+enum Sport {
+  RUNNING
+  CYCLING
+  TRIATHLON
+  SWIMMING
+  CROSSFIT
+  WEIGHTLIFTING
+  BASKETBALL
+  SOCCER
+  TENNIS
+  GENERAL
+}
+
+enum MetricKind {
+  HRV
+  RHR
+  SLEEP_DURATION
+  SLEEP_QUALITY
+  STEPS
+  DISTANCE
+  CALORIES
+  WORKOUTS
+  LOAD
+}
+
+enum SourceProvider {
+  APPLE_HEALTH
+  GARMIN
+  WHOOP
+  OURA
+  STRAVA
+  MANUAL
+}
+
+enum SourceStatus {
+  ACTIVE
+  PAUSED
+  ERROR
+  DISCONNECTED
+}
+
+model User {
+  id                String            @id @default(cuid())
+  email             String            @unique
+  passwordHash      String
+  role              Role              @default(ATHLETE)
+  name              String
+  sport             Sport             @default(GENERAL)
+  teamId            String?
+  timezone          String            @default("America/Los_Angeles")
+  notificationPrefs Json              @default("{}")
+  settings          Json              @default("{}")
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  deletedAt         DateTime?
+
+  team              Team?             @relation(fields: [teamId], references: [id])
+  sourceAccounts    SourceAccount[]
+  metricSamples     MetricSample[]
+  sessionSurveys    SessionSurvey[]
+  readinessScores   ReadinessScore[]
+  prescriptions     Prescription[]
+  coachingAsCoach   CoachLink[]       @relation("CoachUser")
+  coachingAsAthlete CoachLink[]       @relation("AthleteUser")
+  createdProtocols  Protocol[]
+
+  @@index([email])
+  @@index([teamId])
+  @@map("users")
+}
+
+model Team {
+  id        String    @id @default(cuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  users User[]
+
+  @@map("teams")
+}
+
+model CoachLink {
+  id          String    @id @default(cuid())
+  coachId     String
+  athleteId   String
+  permissions Json      @default("[]")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  coach   User @relation("CoachUser", fields: [coachId], references: [id])
+  athlete User @relation("AthleteUser", fields: [athleteId], references: [id])
+
+  @@unique([coachId, athleteId])
+  @@index([coachId])
+  @@index([athleteId])
+  @@map("coach_links")
+}
+
+model SourceAccount {
+  id           String         @id @default(cuid())
+  userId       String
+  provider     SourceProvider
+  status       SourceStatus   @default(ACTIVE)
+  lastSyncAt   DateTime?
+  credentials  Json           @default("{}")
+  scopes       Json           @default("[]")
+  metadata     Json           @default("{}")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, provider])
+  @@index([userId])
+  @@index([provider, status])
+  @@map("source_accounts")
+}
+
+model MetricSample {
+  id        String     @id @default(cuid())
+  userId    String
+  date      DateTime   @db.Date
+  kind      MetricKind
+  value     Float
+  unit      String?
+  source    String
+  metadata  Json       @default("{}")
+  createdAt DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, date, kind, source])
+  @@index([userId, date])
+  @@index([userId, kind, date])
+  @@index([date])
+  @@map("metric_samples")
+}
+
+model SessionSurvey {
+  id           String   @id @default(cuid())
+  userId       String
+  sessionAt    DateTime
+  stiffness    Int
+  soreness     Int
+  mentalReset  Int
+  notes        String?
+  tags         Json     @default("[]")
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, sessionAt])
+  @@index([sessionAt])
+  @@map("session_surveys")
+}
+
+model ReadinessScore {
+  id         String   @id @default(cuid())
+  userId     String
+  date       DateTime @db.Date
+  score      Float
+  confidence Float    @default(1.0)
+  version    String
+  inputs     Json
+  weights    Json
+  components Json
+  rationale  String?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, date, version])
+  @@index([userId, date])
+  @@index([date])
+  @@map("readiness_scores")
+}
+
+model Protocol {
+  id                String   @id @default(cuid())
+  title             String
+  description       String?
+  steps             Json
+  durationMin       Int
+  tags              Json     @default("[]")
+  equipment         Json     @default("[]")
+  contraindications Json     @default("[]")
+  level             String   @default("intermediate")
+  createdBy         String
+  isActive          Boolean  @default(true)
+  version           Int      @default(1)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  creator       User               @relation(fields: [createdBy], references: [id])
+  prescriptions PrescriptionItem[]
+
+  @@index([createdBy])
+  @@index([isActive])
+  @@map("protocols")
+}
+
+model Prescription {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime @db.Date
+  reason    String?
+  ruleIds   Json     @default("[]")
+  inputs    Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  user  User               @relation(fields: [userId], references: [id])
+  items PrescriptionItem[]
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@index([date])
+  @@map("prescriptions")
+}
+
+model PrescriptionItem {
+  id             String   @id @default(cuid())
+  prescriptionId String
+  protocolId     String
+  order          Int
+  completed      Boolean  @default(false)
+  completedAt    DateTime?
+  feedback       String?
+
+  prescription Prescription @relation(fields: [prescriptionId], references: [id])
+  protocol     Protocol     @relation(fields: [protocolId], references: [id])
+
+  @@index([prescriptionId])
+  @@index([protocolId])
+  @@map("prescription_items")
+}
+
+model Rule {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  enabled    Boolean  @default(true)
+  priority   Int      @default(0)
+  conditions Json
+  actions    Json
+  version    String   @default("1.0")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([enabled, priority])
+  @@map("rules")
+}
+
+model FeatureFlag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  enabled   Boolean  @default(false)
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("feature_flags")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entity     String
+  entityId   String?
+  oldValue   Json?
+  newValue   Json?
+  metadata   Json     @default("{}")
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

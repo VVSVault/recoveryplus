@@ -1,0 +1,182 @@
+[
+  {
+    "name": "Low_HRV_High_Stiffness",
+    "enabled": true,
+    "priority": 10,
+    "conditions": [
+      {
+        "metric": "hrvDeltaPct",
+        "operator": "lte",
+        "value": -10
+      },
+      {
+        "metric": "stiffness",
+        "operator": "gte",
+        "value": 6,
+        "combinator": "OR"
+      },
+      {
+        "metric": "soreness",
+        "operator": "gte",
+        "value": 6,
+        "combinator": "OR"
+      }
+    ],
+    "actions": [
+      {
+        "type": "add_protocol",
+        "protocolIds": ["mob_lower_10", "box_breathe_5", "hydration_500"]
+      }
+    ]
+  },
+  {
+    "name": "Sleep_Debt",
+    "enabled": true,
+    "priority": 9,
+    "conditions": [
+      {
+        "metric": "sleepHours",
+        "operator": "lt",
+        "value": 6
+      }
+    ],
+    "actions": [
+      {
+        "type": "add_protocol",
+        "protocolIds": ["active_recovery_20", "yoga_nidra_20", "hydration_500"]
+      }
+    ]
+  },
+  {
+    "name": "High_Sleep_Debt",
+    "enabled": true,
+    "priority": 11,
+    "conditions": [
+      {
+        "metric": "sleepDebt24h",
+        "operator": "gte",
+        "value": 1.5
+      }
+    ],
+    "actions": [
+      {
+        "type": "add_protocol",
+        "protocolIds": ["active_recovery_20", "light_walk_15", "yoga_nidra_20"]
+      }
+    ]
+  },
+  {
+    "name": "RHR_Elevated",
+    "enabled": true,
+    "priority": 8,
+    "conditions": [
+      {
+        "metric": "rhrDeltaPct",
+        "operator": "gte",
+        "value": 8
+      }
+    ],
+    "actions": [
+      {
+        "type": "add_protocol",
+        "protocolIds": ["box_breathe_5", "light_walk_15", "hydration_500"]
+      }
+    ]
+  },
+  {
+    "name": "High_Training_Load",
+    "enabled": true,
+    "priority": 7,
+    "conditions": [
+      {
+        "metric": "acuteChronic",
+        "operator": "gt",
+        "value": 1.3
+      }
+    ],
+    "actions": [
+      {
+        "type": "add_protocol",
+        "protocolIds": ["foam_roll_15", "cold_shower_2", "hydration_500"]
+      }
+    ]
+  },
+  {
+    "name": "Low_Readiness",
+    "enabled": true,
+    "priority": 12,
+    "conditions": [
+      {
+        "metric": "readinessScore",
+        "operator": "lt",
+        "value": 60
+      }
+    ],
+    "actions": [
+      {
+        "type": "add_protocol",
+        "protocolTags": ["recovery", "active-recovery"]
+      }
+    ]
+  },
+  {
+    "name": "Very_Low_Readiness",
+    "enabled": true,
+    "priority": 15,
+    "conditions": [
+      {
+        "metric": "readinessScore",
+        "operator": "lt",
+        "value": 40
+      }
+    ],
+    "actions": [
+      {
+        "type": "add_protocol",
+        "protocolIds": ["yoga_nidra_20", "box_breathe_5", "light_walk_15"]
+      }
+    ]
+  },
+  {
+    "name": "High_Muscle_Tension",
+    "enabled": true,
+    "priority": 9,
+    "conditions": [
+      {
+        "metric": "stiffness",
+        "operator": "gte",
+        "value": 8
+      },
+      {
+        "metric": "soreness",
+        "operator": "gte",
+        "value": 8,
+        "combinator": "AND"
+      }
+    ],
+    "actions": [
+      {
+        "type": "add_protocol",
+        "protocolIds": ["foam_roll_15", "mob_lower_10", "cold_shower_2"]
+      }
+    ]
+  },
+  {
+    "name": "Poor_Mental_Recovery",
+    "enabled": true,
+    "priority": 6,
+    "conditions": [
+      {
+        "metric": "mentalReset",
+        "operator": "lte",
+        "value": 3
+      }
+    ],
+    "actions": [
+      {
+        "type": "add_protocol",
+        "protocolIds": ["yoga_nidra_20", "box_breathe_5", "light_walk_15"]
+      }
+    ]
+  }
+]

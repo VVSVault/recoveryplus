@@ -1,0 +1,134 @@
+[
+  {
+    "id": "mob_lower_10",
+    "title": "Lower Body Mobility",
+    "description": "Comprehensive lower body mobility routine for recovery",
+    "durationMin": 10,
+    "steps": [
+      "90/90 hip switches - 2 minutes",
+      "Couch stretch - 2 minutes per side",
+      "Ankle dorsiflexion - 2 minutes",
+      "Pigeon pose - 2 minutes per side"
+    ],
+    "tags": ["mobility", "recovery", "lower-body"],
+    "equipment": [],
+    "contraindications": ["acute knee injury"],
+    "level": "beginner"
+  },
+  {
+    "id": "box_breathe_5",
+    "title": "Box Breathing",
+    "description": "4-4-4-4 breathing pattern for nervous system recovery",
+    "durationMin": 5,
+    "steps": [
+      "Inhale for 4 counts",
+      "Hold for 4 counts",
+      "Exhale for 4 counts",
+      "Hold for 4 counts",
+      "Repeat for 5 minutes"
+    ],
+    "tags": ["breathwork", "recovery", "stress"],
+    "equipment": [],
+    "contraindications": [],
+    "level": "beginner"
+  },
+  {
+    "id": "hydration_500",
+    "title": "Hydration Protocol",
+    "description": "Structured hydration with electrolyte replacement",
+    "durationMin": 5,
+    "steps": [
+      "Drink 500ml water over 5 minutes",
+      "Add pinch of sea salt",
+      "Add lemon juice (optional)",
+      "Follow with light movement"
+    ],
+    "tags": ["hydration", "recovery"],
+    "equipment": [],
+    "contraindications": ["fluid restriction"],
+    "level": "beginner"
+  },
+  {
+    "id": "active_recovery_20",
+    "title": "Active Recovery Flow",
+    "description": "Low-intensity movement pattern for recovery days",
+    "durationMin": 20,
+    "steps": [
+      "5 min easy walk or bike",
+      "5 min dynamic stretching",
+      "5 min yoga flow (cat-cow, child's pose, downward dog)",
+      "5 min easy walk to cool down"
+    ],
+    "tags": ["active-recovery", "movement", "recovery"],
+    "equipment": [],
+    "contraindications": [],
+    "level": "beginner"
+  },
+  {
+    "id": "light_walk_15",
+    "title": "Recovery Walk",
+    "description": "Easy-paced walking for circulation and recovery",
+    "durationMin": 15,
+    "steps": [
+      "Start with 2 minutes very easy pace",
+      "Build to comfortable conversation pace",
+      "Maintain for 10 minutes",
+      "Cool down with 3 minutes easy pace"
+    ],
+    "tags": ["walking", "active-recovery", "cardio"],
+    "equipment": [],
+    "contraindications": [],
+    "level": "beginner"
+  },
+  {
+    "id": "cold_shower_2",
+    "title": "Cold Exposure",
+    "description": "Brief cold water exposure for recovery adaptation",
+    "durationMin": 2,
+    "steps": [
+      "Start with warm water",
+      "Gradually decrease temperature",
+      "30 seconds cold water",
+      "Return to warm briefly",
+      "Finish with 30 seconds cold"
+    ],
+    "tags": ["cold-therapy", "recovery"],
+    "equipment": [],
+    "contraindications": ["Raynauds", "cardiovascular conditions"],
+    "level": "intermediate"
+  },
+  {
+    "id": "foam_roll_15",
+    "title": "Foam Rolling Session",
+    "description": "Self-myofascial release for muscle recovery",
+    "durationMin": 15,
+    "steps": [
+      "Calves - 2 minutes per leg",
+      "Hamstrings - 2 minutes per leg",
+      "Quads - 2 minutes per leg",
+      "IT bands - 1 minute per side",
+      "Glutes - 2 minutes"
+    ],
+    "tags": ["mobility", "recovery", "self-massage"],
+    "equipment": ["foam-roller"],
+    "contraindications": ["acute muscle strain"],
+    "level": "intermediate"
+  },
+  {
+    "id": "yoga_nidra_20",
+    "title": "Yoga Nidra",
+    "description": "Guided relaxation for deep recovery",
+    "durationMin": 20,
+    "steps": [
+      "Lie comfortably on back",
+      "Progressive body scan from toes to head",
+      "Focus on breath awareness",
+      "Visualization of healing",
+      "Gradual return to awareness"
+    ],
+    "tags": ["meditation", "recovery", "stress", "sleep"],
+    "equipment": ["yoga-mat"],
+    "contraindications": [],
+    "level": "beginner"
+  }
+]

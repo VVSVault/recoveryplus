@@ -1,0 +1,908 @@
+openapi: 3.0.3
+info:
+  title: Recovery Plus API
+  description: Production-grade backend for athletic recovery automation
+  version: 1.0.0
+  contact:
+    name: Recovery Plus Team
+    email: api@recoveryplus.io
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+  - url: https://api.recoveryplus.io
+    description: Production
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Dashboard
+    description: Dashboard data endpoints
+  - name: Surveys
+    description: Survey submission and retrieval
+  - name: Prescriptions
+    description: Recovery prescriptions
+  - name: Ingest
+    description: Data ingestion endpoints
+  - name: Reports
+    description: Analytics and reports
+  - name: Admin
+    description: Administrative endpoints
+  - name: Auth
+    description: Authentication endpoints
+
+paths:
+  /v1/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register new user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: User login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/dashboard/snapshot:
+    get:
+      tags: [Dashboard]
+      summary: Get dashboard snapshot
+      description: Returns current readiness score, key metrics, flags, and prescriptions
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Date for snapshot (defaults to today)
+      responses:
+        '200':
+          description: Dashboard snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSnapshot'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/dashboard/trends:
+    get:
+      tags: [Dashboard]
+      summary: Get trend data
+      description: Returns time series data for metrics and scores
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Trend data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrendData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/surveys/session:
+    post:
+      tags: [Surveys]
+      summary: Submit session survey
+      description: Records post-session subjective metrics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionSurveyRequest'
+      responses:
+        '201':
+          description: Survey recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionSurveyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/surveys/history:
+    get:
+      tags: [Surveys]
+      summary: Get survey history
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Survey history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  surveys:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SessionSurvey'
+
+  /v1/prescriptions/today:
+    get:
+      tags: [Prescriptions]
+      summary: Get today's prescriptions
+      description: Returns prescribed recovery protocols with rationale
+      responses:
+        '200':
+          description: Today's prescriptions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrescriptionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/prescriptions/history:
+    get:
+      tags: [Prescriptions]
+      summary: Get prescription history
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Prescription history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prescriptions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PrescriptionResponse'
+
+  /v1/ingest/apple-health:
+    post:
+      tags: [Ingest]
+      summary: Ingest Apple Health data
+      description: Webhook endpoint for normalized Apple Health metrics
+      security:
+        - webhookAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppleHealthPayload'
+      responses:
+        '202':
+          description: Data accepted for processing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  jobId:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/reports/weekly:
+    get:
+      tags: [Reports]
+      summary: Get weekly report
+      description: Returns weekly summary with KPIs and adherence metrics
+      parameters:
+        - name: week
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Any date within the target week
+      responses:
+        '200':
+          description: Weekly report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeeklyReport'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/admin/protocols:
+    get:
+      tags: [Admin]
+      summary: List protocols
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Protocol list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  protocols:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Protocol'
+
+    post:
+      tags: [Admin]
+      summary: Create protocol
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProtocolCreateRequest'
+      responses:
+        '201':
+          description: Protocol created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Protocol'
+
+  /v1/admin/protocols/{id}:
+    put:
+      tags: [Admin]
+      summary: Update protocol
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProtocolUpdateRequest'
+      responses:
+        '200':
+          description: Protocol updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Protocol'
+
+  /v1/admin/rules:
+    get:
+      tags: [Admin]
+      summary: List rules
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Rule list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Rule'
+
+    post:
+      tags: [Admin]
+      summary: Create rule
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RuleCreateRequest'
+      responses:
+        '201':
+          description: Rule created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rule'
+
+  /v1/admin/rules/{id}:
+    put:
+      tags: [Admin]
+      summary: Update rule
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RuleUpdateRequest'
+      responses:
+        '200':
+          description: Rule updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rule'
+
+  /v1/admin/flags:
+    get:
+      tags: [Admin]
+      summary: Get feature flags
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Feature flags
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+
+    put:
+      tags: [Admin]
+      summary: Update feature flags
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: boolean
+      responses:
+        '200':
+          description: Flags updated
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    webhookAuth:
+      type: apiKey
+      in: header
+      name: X-Webhook-Token
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [email, password, name, sport]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        name:
+          type: string
+        sport:
+          type: string
+          enum: [running, cycling, triathlon, swimming, crossfit, weightlifting, basketball, soccer, tennis, general]
+        timezone:
+          type: string
+          default: America/Los_Angeles
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [ATHLETE, COACH, ADMIN]
+        sport:
+          type: string
+        timezone:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    DashboardSnapshot:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+          default: "1.0"
+        date:
+          type: string
+          format: date
+        readiness:
+          type: object
+          properties:
+            score:
+              type: number
+              minimum: 0
+              maximum: 100
+            delta7d:
+              type: number
+            version:
+              type: string
+            confidence:
+              type: number
+              minimum: 0
+              maximum: 1
+        keyMetrics:
+          type: object
+          properties:
+            hrvMs:
+              type: number
+            sleepH:
+              type: number
+            rhrBpm:
+              type: number
+            load:
+              type: number
+        flags:
+          type: array
+          items:
+            type: string
+        todayPrescription:
+          type: array
+          items:
+            type: object
+            properties:
+              protocolId:
+                type: string
+              title:
+                type: string
+              durationMin:
+                type: number
+        surveyPromptPending:
+          type: boolean
+
+    TrendData:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+        series:
+          type: object
+          properties:
+            hrvMs:
+              type: array
+              items:
+                $ref: '#/components/schemas/DataPoint'
+            sleepH:
+              type: array
+              items:
+                $ref: '#/components/schemas/DataPoint'
+            rhrBpm:
+              type: array
+              items:
+                $ref: '#/components/schemas/DataPoint'
+            load:
+              type: array
+              items:
+                $ref: '#/components/schemas/DataPoint'
+            soreness:
+              type: array
+              items:
+                $ref: '#/components/schemas/DataPoint'
+            stiffness:
+              type: array
+              items:
+                $ref: '#/components/schemas/DataPoint'
+            reset:
+              type: array
+              items:
+                $ref: '#/components/schemas/DataPoint'
+            readiness:
+              type: array
+              items:
+                $ref: '#/components/schemas/DataPoint'
+
+    DataPoint:
+      type: object
+      properties:
+        d:
+          type: string
+          format: date
+        v:
+          type: number
+
+    SessionSurveyRequest:
+      type: object
+      required: [sessionAt, stiffness, soreness, mentalReset]
+      properties:
+        sessionAt:
+          type: string
+          format: date-time
+        stiffness:
+          type: integer
+          minimum: 1
+          maximum: 10
+        soreness:
+          type: integer
+          minimum: 1
+          maximum: 10
+        mentalReset:
+          type: integer
+          minimum: 1
+          maximum: 10
+        notes:
+          type: string
+          maxLength: 500
+        tags:
+          type: array
+          items:
+            type: string
+
+    SessionSurveyResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        triggeredRecompute:
+          type: boolean
+
+    SessionSurvey:
+      allOf:
+        - $ref: '#/components/schemas/SessionSurveyRequest'
+        - type: object
+          properties:
+            id:
+              type: string
+            userId:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+
+    PrescriptionResponse:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        protocols:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProtocolDetail'
+        rationale:
+          type: object
+          properties:
+            ruleIds:
+              type: array
+              items:
+                type: string
+            keyInputs:
+              type: object
+              additionalProperties: true
+
+    ProtocolDetail:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        durationMin:
+          type: number
+        steps:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        equipment:
+          type: array
+          items:
+            type: string
+        contraindications:
+          type: array
+          items:
+            type: string
+
+    Protocol:
+      allOf:
+        - $ref: '#/components/schemas/ProtocolDetail'
+        - type: object
+          properties:
+            level:
+              type: string
+              enum: [beginner, intermediate, advanced]
+            createdBy:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    ProtocolCreateRequest:
+      type: object
+      required: [title, steps, durationMin, tags]
+      properties:
+        title:
+          type: string
+        steps:
+          type: array
+          items:
+            type: string
+        durationMin:
+          type: number
+        tags:
+          type: array
+          items:
+            type: string
+        equipment:
+          type: array
+          items:
+            type: string
+        contraindications:
+          type: array
+          items:
+            type: string
+        level:
+          type: string
+          enum: [beginner, intermediate, advanced]
+
+    ProtocolUpdateRequest:
+      $ref: '#/components/schemas/ProtocolCreateRequest'
+
+    AppleHealthPayload:
+      type: object
+      required: [userId, metrics, timestamp]
+      properties:
+        userId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        metrics:
+          type: array
+          items:
+            type: object
+            required: [kind, value, date]
+            properties:
+              kind:
+                type: string
+                enum: [HRV, RHR, SLEEP_DURATION, SLEEP_QUALITY, STEPS, DISTANCE, CALORIES, WORKOUTS, LOAD]
+              value:
+                type: number
+              unit:
+                type: string
+              date:
+                type: string
+                format: date
+              meta:
+                type: object
+                additionalProperties: true
+
+    WeeklyReport:
+      type: object
+      properties:
+        weekStarting:
+          type: string
+          format: date
+        avgReadiness:
+          type: number
+        readinessTrend:
+          type: string
+          enum: [improving, stable, declining]
+        adherence:
+          type: object
+          properties:
+            prescriptionsGiven:
+              type: integer
+            prescriptionsCompleted:
+              type: integer
+            completionRate:
+              type: number
+        topDrivers:
+          type: array
+          items:
+            type: object
+            properties:
+              metric:
+                type: string
+              impact:
+                type: string
+                enum: [positive, negative]
+              change:
+                type: number
+        highlights:
+          type: array
+          items:
+            type: string
+
+    Rule:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        enabled:
+          type: boolean
+        version:
+          type: string
+        conditions:
+          type: object
+        actions:
+          type: object
+        priority:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    RuleCreateRequest:
+      type: object
+      required: [name, conditions, actions]
+      properties:
+        name:
+          type: string
+        enabled:
+          type: boolean
+          default: true
+        conditions:
+          type: object
+        actions:
+          type: object
+        priority:
+          type: integer
+          default: 0
+
+    RuleUpdateRequest:
+      $ref: '#/components/schemas/RuleCreateRequest'
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              details:
+                type: object
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string

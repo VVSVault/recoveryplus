@@ -1,0 +1,42 @@
+{
+  "name": "recoveryplus-new",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "backend:dev": "tsx watch src/demo-server.ts",
+    "backend:start": "tsx src/demo-server.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^9.0.1",
+    "@mdx-js/loader": "^3.1.0",
+    "@next/mdx": "^15.4.5",
+    "@tailwindcss/typography": "^0.5.16",
+    "autoprefixer": "^10.4.21",
+    "fastify": "^4.25.0",
+    "framer-motion": "^12.23.12",
+    "gray-matter": "^4.0.3",
+    "lucide-react": "^0.412.0",
+    "next": "15.4.5",
+    "next-mdx-remote": "^5.0.0",
+    "openai": "^5.12.1",
+    "pino": "^8.17.0",
+    "pino-pretty": "^10.3.0",
+    "postcss": "^8.5.6",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remark": "^15.0.1",
+    "remark-html": "^16.0.1",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "5.9.2"
+  }
+}

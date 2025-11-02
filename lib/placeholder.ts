@@ -1,0 +1,3 @@
+export const placeholderImage = (width: number, height: number, text: string = 'Image') => {
+  return `data:image/svg+xml;charset=UTF-8,%3Csvg width='${width}' height='${height}' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${width} ${height}' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cstyle type='text/css'%3E %23holder text %7B fill:rgba(255,255,255,0.3);font-weight:normal;font-family:Helvetica, monospace;font-size:${Math.min(width, height) * 0.05}pt %7D %3C/style%3E%3C/defs%3E%3Cg id='holder'%3E%3Crect width='100%25' height='100%25' fill='%23141414'%3E%3C/rect%3E%3Cg%3E%3Ctext text-anchor='middle' x='50%25' y='50%25' dy='.3em'%3E${text}%3C/text%3E%3C/g%3E%3C/g%3E%3C/svg%3E`;
+};
